@@ -84,11 +84,9 @@
     .gallery-name { font-family: var(--font-display); font-size: 19px; letter-spacing: 1px; color: var(--white); }
     .gallery-zoom-hint { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; background: rgba(184,240,64,0.15); border: 1px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; font-size: 14px; }
     .gallery-item:hover .gallery-zoom-hint { opacity: 1; }
-    .gallery-item.tall img  { aspect-ratio: 3/4;  object-fit: cover; }
-    .gallery-item.wide img  { aspect-ratio: 16/9; object-fit: cover; }
-    .gallery-item.sq   img  { aspect-ratio: 1/1;  object-fit: cover; }
-
-    /* Lightbox */
+    .gallery-item.tall img { aspect-ratio: 3/4; object-fit: cover; }
+    .gallery-item.wide img { aspect-ratio: 16/9; object-fit: cover; }
+    .gallery-item.sq   img { aspect-ratio: 1/1; object-fit: cover; }
     .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 1000; align-items: center; justify-content: center; padding: 40px; }
     .lightbox.open { display: flex; }
     .lightbox-inner { position: relative; max-width: 920px; width: 100%; }
@@ -97,11 +95,127 @@
     .lightbox-close:hover { color: var(--green); }
     .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); font-family: var(--font-display); font-size: 40px; background: none; border: none; color: var(--gray); cursor: none; transition: color 0.2s; padding: 10px; }
     .lightbox-nav:hover { color: var(--green); }
-    .lightbox-prev { left: -64px; }
-    .lightbox-next { right: -64px; }
+    .lightbox-prev { left: -64px; } .lightbox-next { right: -64px; }
     .lightbox-footer { margin-top: 14px; display: flex; justify-content: space-between; align-items: center; }
     .lightbox-caption { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
     .lightbox-counter { font-family: var(--font-mono); font-size: 11px; color: #444; }
+
+    /* ─── PARTENAIRES CAROUSEL ─── */
+    .partners-section {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 64px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .partners-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .partners-header .section-tag {
+      justify-content: center;
+    }
+    .partners-header .section-tag::before { display: none; }
+    .partners-header p {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--gray);
+      margin-top: 8px;
+    }
+    /* Fade edges */
+    .partners-track-wrap {
+      position: relative;
+    }
+    .partners-track-wrap::before,
+    .partners-track-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .partners-track-wrap::before { left: 0; background: linear-gradient(to right, var(--black), transparent); }
+    .partners-track-wrap::after  { right: 0; background: linear-gradient(to left, var(--black), transparent); }
+
+    .partners-track {
+      display: flex;
+      gap: 0;
+      width: max-content;
+      animation: scrollPartners 18s linear infinite;
+    }
+    .partners-track:hover { animation-play-state: paused; }
+
+    @keyframes scrollPartners {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .partner-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 0 64px;
+      border-right: 1px solid var(--border);
+      min-width: 260px;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: none;
+    }
+    .partner-card:last-child { border-right: none; }
+    .partner-card:hover .partner-logo-wrap { border-color: var(--green); }
+    .partner-card:hover .partner-name { color: var(--green); }
+
+    .partner-logo-wrap {
+      width: 100px;
+      height: 100px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      transition: border-color 0.3s;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .partner-logo-wrap img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: grayscale(100%) brightness(1.5);
+      transition: filter 0.3s;
+    }
+    .partner-card:hover .partner-logo-wrap img {
+      filter: grayscale(0%) brightness(1);
+    }
+    /* Fallback monogram when no logo */
+    .partner-monogram {
+      font-family: var(--font-display);
+      font-size: 28px;
+      letter-spacing: 2px;
+      color: var(--green);
+      line-height: 1;
+    }
+    .partner-info { text-align: center; }
+    .partner-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--white);
+      transition: color 0.3s;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .partner-url {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--gray);
+      display: block;
+    }
 
     .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--border); }
     .ba-panel { position: relative; overflow: hidden; }
@@ -148,6 +262,7 @@
       .services-grid, .testi-grid, .ba-grid { grid-template-columns: 1fr; }
       footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
       .lightbox-prev { left: -16px; } .lightbox-next { right: -16px; }
+      .partner-card { padding: 0 36px; min-width: 200px; }
     }
     @media(max-width: 500px) { .gallery-grid { columns: 1; } }
   </style>
@@ -162,11 +277,12 @@
     <a href="#about">À propos</a>
     <a href="#services">Services</a>
     <a href="#gallery">Galerie</a>
-    <a href="#realizations">Avant/Après</a>
+    <a href="#partners">Partenaires</a>
     <a href="#contact">Contact</a>
   </div>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
   <div class="hero-left">
     <div class="hero-tag fade-up">Génie Civil — Togo</div>
@@ -182,6 +298,7 @@
   </div>
 </div>
 
+<!-- STATS -->
 <div class="stats-bar">
   <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Chantiers contrôlés</div></div>
   <div class="stat"><div class="stat-num">5+</div><div class="stat-label">Ans d'expérience</div></div>
@@ -189,6 +306,7 @@
   <div class="stat"><div class="stat-num">3</div><div class="stat-label">Types de missions</div></div>
 </div>
 
+<!-- ABOUT -->
 <section id="about">
   <div class="about-grid">
     <div class="about-text">
@@ -205,6 +323,7 @@
   </div>
 </section>
 
+<!-- SERVICES -->
 <section id="services" style="padding-top:0;">
   <div class="section-tag">Services</div>
   <h2 class="section-title">CE QUE<br>JE FAIS.</h2>
@@ -239,7 +358,6 @@
     <div class="section-tag">Galerie photos</div>
     <h2 class="section-title">MES<br>RÉALISATIONS.</h2>
     <p class="gallery-subtitle">Chantiers réalisés : ferraillage, structures, châteaux d'eau, fondations et suivi d'exécution terrain.</p>
-
     <div class="gallery-filters">
       <button class="filter-btn active" onclick="filterGallery('all',this)">Tout</button>
       <button class="filter-btn" onclick="filterGallery('chateau',this)">Château d'eau</button>
@@ -248,77 +366,37 @@
       <button class="filter-btn" onclick="filterGallery('fondation',this)">Fondation</button>
       <button class="filter-btn" onclick="filterGallery('suivi',this)">Suivi terrain</button>
     </div>
-
     <div class="gallery-grid" id="galleryGrid">
-
-      <!-- ══ CHÂTEAU D'EAU — tes vraies photos ══ -->
       <div class="gallery-item tall" data-cat="chateau" data-index="0" onclick="openLightbox(0)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/chateau1.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'"
-             alt="Château d'eau — Construction en cours">
-        <div class="gallery-overlay">
-          <div class="gallery-cat">Château d'eau</div>
-          <div class="gallery-name">Construction en cours</div>
-        </div>
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/chateau1.jpg" onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'" alt="Château d'eau — Construction en cours">
+        <div class="gallery-overlay"><div class="gallery-cat">Château d'eau</div><div class="gallery-name">Construction en cours</div></div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
-
       <div class="gallery-item wide" data-cat="chateau" data-index="1" onclick="openLightbox(1)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/chateau2.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'"
-             alt="Château d'eau — Vue drone, livraison finale">
-        <div class="gallery-overlay">
-          <div class="gallery-cat">Château d'eau</div>
-          <div class="gallery-name">Livraison finale — vue drone</div>
-        </div>
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/chateau2.jpg" onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'" alt="Château d'eau — Vue drone livraison finale">
+        <div class="gallery-overlay"><div class="gallery-cat">Château d'eau</div><div class="gallery-name">Livraison finale — vue drone</div></div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
-
-      <!-- ══ AUTRES RÉALISATIONS ══ -->
       <div class="gallery-item sq" data-cat="ferraillage" data-index="2" onclick="openLightbox(2)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie1.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'"
-             alt="Ferraillage — Vérification armatures">
-        <div class="gallery-overlay">
-          <div class="gallery-cat">Ferraillage</div>
-          <div class="gallery-name">Vérification armatures</div>
-        </div>
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie1.jpg" onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'" alt="Ferraillage">
+        <div class="gallery-overlay"><div class="gallery-cat">Ferraillage</div><div class="gallery-name">Vérification armatures</div></div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
-
       <div class="gallery-item sq" data-cat="structure" data-index="3" onclick="openLightbox(3)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie2.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'"
-             alt="Structure — Contrôle poteaux">
-        <div class="gallery-overlay">
-          <div class="gallery-cat">Structure</div>
-          <div class="gallery-name">Contrôle poteaux</div>
-        </div>
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie2.jpg" onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'" alt="Structure">
+        <div class="gallery-overlay"><div class="gallery-cat">Structure</div><div class="gallery-name">Contrôle poteaux</div></div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
-
       <div class="gallery-item wide" data-cat="fondation" data-index="4" onclick="openLightbox(4)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie3.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/suivi.jpg'"
-             alt="Fondation — Inspection semelles">
-        <div class="gallery-overlay">
-          <div class="gallery-cat">Fondation</div>
-          <div class="gallery-name">Inspection semelles</div>
-        </div>
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie3.jpg" onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/suivi.jpg'" alt="Fondation">
+        <div class="gallery-overlay"><div class="gallery-cat">Fondation</div><div class="gallery-name">Inspection semelles</div></div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
-
       <div class="gallery-item tall" data-cat="suivi" data-index="5" onclick="openLightbox(5)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie4.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/audit.jpg'"
-             alt="Suivi terrain — Visite de chantier">
-        <div class="gallery-overlay">
-          <div class="gallery-cat">Suivi terrain</div>
-          <div class="gallery-name">Visite de chantier</div>
-        </div>
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie4.jpg" onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/audit.jpg'" alt="Suivi terrain">
+        <div class="gallery-overlay"><div class="gallery-cat">Suivi terrain</div><div class="gallery-name">Visite de chantier</div></div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
-
     </div>
   </div>
 </div>
@@ -337,7 +415,86 @@
   </div>
 </div>
 
-<section id="realizations" style="padding-top:0;">
+<!-- ═══════════════════ PARTENAIRES ═══════════════════ -->
+<div class="partners-section" id="partners">
+  <div class="partners-header">
+    <div class="section-tag" style="justify-content:center;">Partenaires</div>
+    <p>Ils me font confiance et travaillent avec moi sur le terrain.</p>
+  </div>
+
+  <div class="partners-track-wrap">
+    <div class="partners-track" id="partnersTrack">
+
+      <!-- Carte 1 — Midnight Sun -->
+      <a class="partner-card" href="https://midnightsun-grp.com/" target="_blank" rel="noopener">
+        <div class="partner-logo-wrap">
+          <img src="https://midnightsun-grp.com/favicon.ico"
+               onerror="this.style.display='none'; this.parentNode.querySelector('.partner-monogram').style.display='block';"
+               alt="Midnight Sun logo">
+          <span class="partner-monogram" style="display:none;">MS</span>
+        </div>
+        <div class="partner-info">
+          <span class="partner-name">MIDNIGHT SUN</span>
+          <span class="partner-url">midnightsun-grp.com</span>
+        </div>
+      </a>
+
+      <!-- Carte 2 — ICONE BTP -->
+      <a class="partner-card" href="https://iconebtp.com" target="_blank" rel="noopener">
+        <div class="partner-logo-wrap">
+          <img src="https://iconebtp.com/favicon.ico"
+               onerror="this.style.display='none'; this.parentNode.querySelector('.partner-monogram').style.display='block';"
+               alt="Icone BTP logo">
+          <span class="partner-monogram" style="display:none;">IB</span>
+        </div>
+        <div class="partner-info">
+          <span class="partner-name">ICONE BTP</span>
+          <span class="partner-url">iconebtp.com</span>
+        </div>
+      </a>
+
+      <!-- Séparateur décoratif -->
+      <div class="partner-card" style="pointer-events:none; opacity:0.15; min-width:120px; padding:0 40px;">
+        <div style="font-family:var(--font-display); font-size:48px; color:var(--green); letter-spacing:4px;">×</div>
+      </div>
+
+      <!-- Duplication pour boucle infinie -->
+      <a class="partner-card" href="https://midnightsun-grp.com/" target="_blank" rel="noopener">
+        <div class="partner-logo-wrap">
+          <img src="https://midnightsun-grp.com/favicon.ico"
+               onerror="this.style.display='none'; this.parentNode.querySelector('.partner-monogram').style.display='block';"
+               alt="Midnight Sun logo">
+          <span class="partner-monogram" style="display:none;">MS</span>
+        </div>
+        <div class="partner-info">
+          <span class="partner-name">MIDNIGHT SUN</span>
+          <span class="partner-url">midnightsun-grp.com</span>
+        </div>
+      </a>
+
+      <a class="partner-card" href="https://iconebtp.com" target="_blank" rel="noopener">
+        <div class="partner-logo-wrap">
+          <img src="https://iconebtp.com/favicon.ico"
+               onerror="this.style.display='none'; this.parentNode.querySelector('.partner-monogram').style.display='block';"
+               alt="Icone BTP logo">
+          <span class="partner-monogram" style="display:none;">IB</span>
+        </div>
+        <div class="partner-info">
+          <span class="partner-name">ICONE BTP</span>
+          <span class="partner-url">iconebtp.com</span>
+        </div>
+      </a>
+
+      <div class="partner-card" style="pointer-events:none; opacity:0.15; min-width:120px; padding:0 40px;">
+        <div style="font-family:var(--font-display); font-size:48px; color:var(--green); letter-spacing:4px;">×</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- AVANT / APRÈS -->
+<section id="realizations" style="padding-top:80px;">
   <div class="section-tag">Réalisations</div>
   <h2 class="section-title">AVANT /<br>APRÈS.</h2>
   <div class="ba-grid">
@@ -346,6 +503,7 @@
   </div>
 </section>
 
+<!-- TÉMOIGNAGES -->
 <section style="padding-top:0;">
   <div class="section-tag">Témoignages</div>
   <h2 class="section-title">ILS ME<br>FONT CONFIANCE.</h2>
@@ -361,6 +519,7 @@
   </div>
 </section>
 
+<!-- CONTACT -->
 <section id="contact" style="padding-top:0;">
   <div class="contact-wrap">
     <div class="contact-info">
@@ -397,7 +556,7 @@
   let mx=0,my=0,rx=0,ry=0;
   document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-5+'px';cursor.style.top=my-5+'px';});
   (function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(animRing);})();
-  document.querySelectorAll('a,button,.gallery-item,.filter-btn').forEach(el=>{
+  document.querySelectorAll('a,button,.gallery-item,.filter-btn,.partner-card').forEach(el=>{
     el.addEventListener('mouseenter',()=>{cursor.style.transform='scale(2)';ring.style.transform='scale(1.5)';ring.style.opacity='0.8';});
     el.addEventListener('mouseleave',()=>{cursor.style.transform='scale(1)';ring.style.transform='scale(1)';ring.style.opacity='0.5';});
   });
