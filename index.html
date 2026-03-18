@@ -82,15 +82,11 @@
     .gallery-item:hover .gallery-overlay { opacity: 1; }
     .gallery-cat { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--green); margin-bottom: 3px; }
     .gallery-name { font-family: var(--font-display); font-size: 19px; letter-spacing: 1px; color: var(--white); }
+    .gallery-zoom-hint { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; background: rgba(184,240,64,0.15); border: 1px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; font-size: 14px; }
+    .gallery-item:hover .gallery-zoom-hint { opacity: 1; }
     .gallery-item.tall img  { aspect-ratio: 3/4;  object-fit: cover; }
     .gallery-item.wide img  { aspect-ratio: 16/9; object-fit: cover; }
     .gallery-item.sq   img  { aspect-ratio: 1/1;  object-fit: cover; }
-    .gallery-zoom-hint { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; background: rgba(184,240,64,0.15); border: 1px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; font-size: 14px; }
-    .gallery-item:hover .gallery-zoom-hint { opacity: 1; }
-    .gallery-add-note { margin-top: 28px; padding: 18px 22px; border: 1px dashed #2a2a2a; display: flex; align-items: flex-start; gap: 14px; border-radius: 4px; }
-    .gallery-add-note-icon { font-size: 22px; opacity: 0.4; flex-shrink: 0; margin-top: 2px; }
-    .gallery-add-note-text { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.5px; color: #555; line-height: 1.8; }
-    .gallery-add-note-text strong { color: var(--green); }
 
     /* Lightbox */
     .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 1000; align-items: center; justify-content: center; padding: 40px; }
@@ -138,9 +134,7 @@
     .wa-float:hover { transform: scale(1.1); }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .fade-up { animation: fadeUp 0.8s ease forwards; opacity: 0; }
-    .delay-1 { animation-delay: 0.2s; }
-    .delay-2 { animation-delay: 0.4s; }
-    .delay-3 { animation-delay: 0.6s; }
+    .delay-1 { animation-delay: 0.2s; } .delay-2 { animation-delay: 0.4s; } .delay-3 { animation-delay: 0.6s; }
     @media(max-width: 900px) {
       nav { padding: 20px 24px; } .nav-links { display: none; }
       .hero { grid-template-columns: 1fr; } .hero-right { height: 50vh; }
@@ -173,7 +167,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-left">
     <div class="hero-tag fade-up">Génie Civil — Togo</div>
@@ -189,7 +182,6 @@
   </div>
 </div>
 
-<!-- STATS -->
 <div class="stats-bar">
   <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Chantiers contrôlés</div></div>
   <div class="stat"><div class="stat-num">5+</div><div class="stat-label">Ans d'expérience</div></div>
@@ -197,7 +189,6 @@
   <div class="stat"><div class="stat-num">3</div><div class="stat-label">Types de missions</div></div>
 </div>
 
-<!-- ABOUT -->
 <section id="about">
   <div class="about-grid">
     <div class="about-text">
@@ -214,7 +205,6 @@
   </div>
 </section>
 
-<!-- SERVICES -->
 <section id="services" style="padding-top:0;">
   <div class="section-tag">Services</div>
   <h2 class="section-title">CE QUE<br>JE FAIS.</h2>
@@ -243,15 +233,16 @@
   </div>
 </section>
 
-<!-- ═══════════════════ GALERIE ═══════════════════ -->
+<!-- GALERIE -->
 <div class="gallery-section" id="gallery">
   <div class="gallery-inner">
     <div class="section-tag">Galerie photos</div>
     <h2 class="section-title">MES<br>RÉALISATIONS.</h2>
-    <p class="gallery-subtitle">Chaque photo témoigne d'une intervention terrain — ferraillage, structure, fondation, suivi d'exécution.</p>
+    <p class="gallery-subtitle">Chantiers réalisés : ferraillage, structures, châteaux d'eau, fondations et suivi d'exécution terrain.</p>
 
     <div class="gallery-filters">
       <button class="filter-btn active" onclick="filterGallery('all',this)">Tout</button>
+      <button class="filter-btn" onclick="filterGallery('chateau',this)">Château d'eau</button>
       <button class="filter-btn" onclick="filterGallery('ferraillage',this)">Ferraillage</button>
       <button class="filter-btn" onclick="filterGallery('structure',this)">Structure</button>
       <button class="filter-btn" onclick="filterGallery('fondation',this)">Fondation</button>
@@ -260,63 +251,74 @@
 
     <div class="gallery-grid" id="galleryGrid">
 
-      <div class="gallery-item tall" data-cat="ferraillage" data-index="0" onclick="openLightbox(0)">
+      <!-- ══ CHÂTEAU D'EAU — tes vraies photos ══ -->
+      <div class="gallery-item tall" data-cat="chateau" data-index="0" onclick="openLightbox(0)">
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/chateau1.jpg"
+             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'"
+             alt="Château d'eau — Construction en cours">
+        <div class="gallery-overlay">
+          <div class="gallery-cat">Château d'eau</div>
+          <div class="gallery-name">Construction en cours</div>
+        </div>
+        <div class="gallery-zoom-hint">⤢</div>
+      </div>
+
+      <div class="gallery-item wide" data-cat="chateau" data-index="1" onclick="openLightbox(1)">
+        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/chateau2.jpg"
+             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'"
+             alt="Château d'eau — Vue drone, livraison finale">
+        <div class="gallery-overlay">
+          <div class="gallery-cat">Château d'eau</div>
+          <div class="gallery-name">Livraison finale — vue drone</div>
+        </div>
+        <div class="gallery-zoom-hint">⤢</div>
+      </div>
+
+      <!-- ══ AUTRES RÉALISATIONS ══ -->
+      <div class="gallery-item sq" data-cat="ferraillage" data-index="2" onclick="openLightbox(2)">
         <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie1.jpg"
              onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'"
-             alt="Ferraillage - Vérification armatures">
-        <div class="gallery-overlay"><div class="gallery-cat">Ferraillage</div><div class="gallery-name">Vérification armatures</div></div>
+             alt="Ferraillage — Vérification armatures">
+        <div class="gallery-overlay">
+          <div class="gallery-cat">Ferraillage</div>
+          <div class="gallery-name">Vérification armatures</div>
+        </div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
 
-      <div class="gallery-item wide" data-cat="structure" data-index="1" onclick="openLightbox(1)">
+      <div class="gallery-item sq" data-cat="structure" data-index="3" onclick="openLightbox(3)">
         <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie2.jpg"
              onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'"
-             alt="Structure - Contrôle poteaux">
-        <div class="gallery-overlay"><div class="gallery-cat">Structure</div><div class="gallery-name">Contrôle poteaux</div></div>
+             alt="Structure — Contrôle poteaux">
+        <div class="gallery-overlay">
+          <div class="gallery-cat">Structure</div>
+          <div class="gallery-name">Contrôle poteaux</div>
+        </div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
 
-      <div class="gallery-item sq" data-cat="fondation" data-index="2" onclick="openLightbox(2)">
+      <div class="gallery-item wide" data-cat="fondation" data-index="4" onclick="openLightbox(4)">
         <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie3.jpg"
              onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/suivi.jpg'"
-             alt="Fondation - Inspection semelles">
-        <div class="gallery-overlay"><div class="gallery-cat">Fondation</div><div class="gallery-name">Inspection semelles</div></div>
+             alt="Fondation — Inspection semelles">
+        <div class="gallery-overlay">
+          <div class="gallery-cat">Fondation</div>
+          <div class="gallery-name">Inspection semelles</div>
+        </div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
 
-      <div class="gallery-item sq" data-cat="suivi" data-index="3" onclick="openLightbox(3)">
+      <div class="gallery-item tall" data-cat="suivi" data-index="5" onclick="openLightbox(5)">
         <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie4.jpg"
              onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/audit.jpg'"
-             alt="Suivi terrain - Visite de chantier">
-        <div class="gallery-overlay"><div class="gallery-cat">Suivi terrain</div><div class="gallery-name">Visite de chantier</div></div>
+             alt="Suivi terrain — Visite de chantier">
+        <div class="gallery-overlay">
+          <div class="gallery-cat">Suivi terrain</div>
+          <div class="gallery-name">Visite de chantier</div>
+        </div>
         <div class="gallery-zoom-hint">⤢</div>
       </div>
 
-      <div class="gallery-item tall" data-cat="ferraillage" data-index="4" onclick="openLightbox(4)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie5.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/header-chantier.jpg'"
-             alt="Ferraillage - Radier en cours">
-        <div class="gallery-overlay"><div class="gallery-cat">Ferraillage</div><div class="gallery-name">Radier en cours</div></div>
-        <div class="gallery-zoom-hint">⤢</div>
-      </div>
-
-      <div class="gallery-item wide" data-cat="structure" data-index="5" onclick="openLightbox(5)">
-        <img src="https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/galerie6.jpg"
-             onerror="this.src='https://raw.githubusercontent.com/victorkouzo/expert-chantier-togo/main/inspection.jpg'"
-             alt="Structure - Vue d'ensemble">
-        <div class="gallery-overlay"><div class="gallery-cat">Structure</div><div class="gallery-name">Vue d'ensemble</div></div>
-        <div class="gallery-zoom-hint">⤢</div>
-      </div>
-
-    </div><!-- end gallery-grid -->
-
-    <div class="gallery-add-note">
-      <div class="gallery-add-note-icon">📸</div>
-      <div class="gallery-add-note-text">
-        Pour ajouter vos photos : uploadez-les dans votre repo GitHub sous les noms
-        <strong>galerie1.jpg, galerie2.jpg, galerie3.jpg, galerie4.jpg, galerie5.jpg, galerie6.jpg</strong>
-        — elles s'afficheront automatiquement dans la galerie.
-      </div>
     </div>
   </div>
 </div>
@@ -335,7 +337,6 @@
   </div>
 </div>
 
-<!-- AVANT / APRÈS -->
 <section id="realizations" style="padding-top:0;">
   <div class="section-tag">Réalisations</div>
   <h2 class="section-title">AVANT /<br>APRÈS.</h2>
@@ -345,7 +346,6 @@
   </div>
 </section>
 
-<!-- TÉMOIGNAGES -->
 <section style="padding-top:0;">
   <div class="section-tag">Témoignages</div>
   <h2 class="section-title">ILS ME<br>FONT CONFIANCE.</h2>
@@ -361,7 +361,6 @@
   </div>
 </section>
 
-<!-- CONTACT -->
 <section id="contact" style="padding-top:0;">
   <div class="contact-wrap">
     <div class="contact-info">
@@ -394,8 +393,7 @@
 </a>
 
 <script>
-  // ── Cursor ──
-  const cursor = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
   let mx=0,my=0,rx=0,ry=0;
   document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-5+'px';cursor.style.top=my-5+'px';});
   (function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(animRing);})();
@@ -403,14 +401,10 @@
     el.addEventListener('mouseenter',()=>{cursor.style.transform='scale(2)';ring.style.transform='scale(1.5)';ring.style.opacity='0.8';});
     el.addEventListener('mouseleave',()=>{cursor.style.transform='scale(1)';ring.style.transform='scale(1)';ring.style.opacity='0.5';});
   });
-
-  // ── Scroll reveal ──
   const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}}),{threshold:0.08});
   document.querySelectorAll('.service-card,.testi-card,.stat,.ba-panel,.gallery-item').forEach(el=>{
     el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity 0.6s ease,transform 0.6s ease';obs.observe(el);
   });
-
-  // ── Filtres ──
   function filterGallery(cat,btn){
     document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
@@ -418,8 +412,6 @@
       item.style.display=(cat==='all'||item.dataset.cat===cat)?'block':'none';
     });
   }
-
-  // ── Lightbox ──
   const items=[...document.querySelectorAll('.gallery-item')];
   let cur=0;
   function openLightbox(i){cur=i;updateLB();document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
