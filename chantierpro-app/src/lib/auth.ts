@@ -24,7 +24,65 @@ export async function getSession(): Promise<SessionContext | null> {
     .eq("id", user.id)
     .single();
 
-  if (!profile) return null;
+  if (!profile || !profile.company_id) {
+    // Profile missing — try to create it from user metadata (trigger may have failed)
+    const meta = user.user_metadata ?? {};
+    let companyId: string | null = null;
+
+    const { data: existing } = await supabase
+      .from("companies")
+      .select("id")
+      .limit(1)
+      .single();
+
+    if (existing) {
+      companyId = existing.id;
+    } else {
+      const companyName = meta.company_name || meta.full_name ? `${meta.full_name} SARL` : "Mon entreprise";
+      const { data: newCo } = await supabase
+        .from("companies")
+        .insert({ name: companyName, plan: "starter" })
+        .select("id")
+        .single();
+      if (newCo) companyId = newCo.id;
+    }
+
+    if (companyId && !profile) {
+      await supabase.from("profiles").insert({
+        id: user.id,
+        email: user.email ?? "",
+        full_name: meta.full_name ?? "",
+        role: "directeur",
+        phone: meta.phone ?? null,
+        company_id: companyId,
+      });
+    } else if (companyId && profile && !profile.company_id) {
+      await supabase.from("profiles").update({ company_id: companyId }).eq("id", user.id);
+    }
+
+    if (!companyId) return null;
+
+    const { data: refreshed } = await supabase
+      .from("profiles")
+      .select("full_name, role, company_id, companies(name, plan)")
+      .eq("id", user.id)
+      .single();
+    if (!refreshed) return null;
+
+    const co = refreshed.companies && typeof refreshed.companies === "object" && !Array.isArray(refreshed.companies)
+      ? (refreshed.companies as { name: string; plan: string })
+      : { name: "", plan: "starter" };
+
+    return {
+      userId: user.id,
+      email: user.email ?? "",
+      fullName: refreshed.full_name ?? "",
+      role: (refreshed.role ?? "directeur") as Role,
+      companyId: refreshed.company_id ?? "",
+      companyName: co.name,
+      plan: co.plan,
+    };
+  }
 
   const company = profile.companies && typeof profile.companies === "object" && !Array.isArray(profile.companies)
     ? (profile.companies as { name: string; plan: string })
