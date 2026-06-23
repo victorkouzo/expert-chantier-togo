@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LayoutDashboard, HardHat, FileText, Wallet, LogOut } from "lucide-react";
+import { LayoutDashboard, HardHat, FileText, Wallet, Users, CalendarDays, Bell, LogOut } from "lucide-react";
 
 const links = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/chantiers", label: "Chantiers", icon: HardHat },
   { href: "/rapports", label: "Rapports", icon: FileText },
   { href: "/depenses", label: "Dépenses", icon: Wallet },
+  { href: "/equipes", label: "Équipes", icon: Users },
+  { href: "/planning", label: "Planning", icon: CalendarDays },
+  { href: "/notifications", label: "Notifications", icon: Bell },
 ];
 
 export function Sidebar() {

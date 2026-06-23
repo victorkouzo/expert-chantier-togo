@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { ExportExcelButton } from "@/components/export-excel-button";
 
 const categoryLabels: Record<string, string> = {
   materiaux: "Matériaux",
@@ -30,9 +31,12 @@ export default async function DepensesPage() {
           <h1 className="text-2xl font-bold text-white">Dépenses</h1>
           <p className="text-sm text-zinc-400">Total : {total.toLocaleString("fr-FR")} FCFA</p>
         </div>
-        <Link href="/depenses/new">
-          <Button><Plus size={16} className="mr-2" />Nouvelle dépense</Button>
-        </Link>
+        <div className="flex gap-2">
+          <ExportExcelButton />
+          <Link href="/depenses/new">
+            <Button><Plus size={16} className="mr-2" />Nouvelle dépense</Button>
+          </Link>
+        </div>
       </div>
 
       {(!depenses || depenses.length === 0) ? (

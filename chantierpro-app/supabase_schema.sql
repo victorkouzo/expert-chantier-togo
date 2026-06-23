@@ -90,3 +90,71 @@ create table if not exists public.expenses (
 
 alter table public.expenses enable row level security;
 create policy "Author can CRUD own expenses" on public.expenses for all using (auth.uid() = author_id);
+
+-- Teams
+create table if not exists public.teams (
+  id uuid default gen_random_uuid() primary key,
+  chantier_id uuid references public.chantiers(id) on delete cascade not null,
+  name text not null,
+  specialty text not null default 'general' check (specialty in ('general','maconnerie','electricite','plomberie','peinture','charpente','ferraillage','coffrage','finition','autre')),
+  created_at timestamptz default now()
+);
+
+alter table public.teams enable row level security;
+create policy "Chantier owner can manage teams" on public.teams for all
+  using (exists (select 1 from public.chantiers where id = chantier_id and owner_id = auth.uid()));
+
+-- Team members
+create table if not exists public.team_members (
+  id uuid default gen_random_uuid() primary key,
+  team_id uuid references public.teams(id) on delete cascade not null,
+  full_name text not null,
+  role text not null default 'ouvrier' check (role in ('chef_equipe','ouvrier','apprenti','manoeuvre')),
+  phone text,
+  daily_rate numeric default 0,
+  is_active boolean default true,
+  created_at timestamptz default now()
+);
+
+alter table public.team_members enable row level security;
+create policy "Team owner can manage members" on public.team_members for all
+  using (exists (
+    select 1 from public.teams t
+    join public.chantiers c on c.id = t.chantier_id
+    where t.id = team_id and c.owner_id = auth.uid()
+  ));
+
+-- Tasks (planning)
+create table if not exists public.tasks (
+  id uuid default gen_random_uuid() primary key,
+  chantier_id uuid references public.chantiers(id) on delete cascade not null,
+  title text not null,
+  description text,
+  status text not null default 'a_faire' check (status in ('a_faire','en_cours','termine','bloque')),
+  priority text not null default 'normale' check (priority in ('basse','normale','haute','urgente')),
+  assigned_team_id uuid references public.teams(id),
+  start_date date,
+  end_date date,
+  progress integer default 0 check (progress >= 0 and progress <= 100),
+  created_at timestamptz default now()
+);
+
+alter table public.tasks enable row level security;
+create policy "Chantier owner can manage tasks" on public.tasks for all
+  using (exists (select 1 from public.chantiers where id = chantier_id and owner_id = auth.uid()));
+
+-- Notifications
+create table if not exists public.notifications (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  title text not null,
+  message text not null,
+  type text not null default 'info' check (type in ('info','warning','success','error')),
+  is_read boolean default false,
+  link text,
+  created_at timestamptz default now()
+);
+
+alter table public.notifications enable row level security;
+create policy "User can read own notifications" on public.notifications for select using (auth.uid() = user_id);
+create policy "User can update own notifications" on public.notifications for update using (auth.uid() = user_id);
