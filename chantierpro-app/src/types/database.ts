@@ -1,4 +1,19 @@
-export type UserRole = "admin" | "chef_chantier" | "conducteur_travaux" | "ouvrier" | "client";
+export type UserRole = "admin" | "directeur" | "chef_chantier" | "conducteur_travaux" | "ouvrier" | "client";
+export type Plan = "starter" | "pro" | "business";
+
+export interface Company {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  address: string | null;
+  city: string;
+  phone: string | null;
+  email: string | null;
+  plan: Plan;
+  max_chantiers: number;
+  max_users: number;
+  created_at: string;
+}
 
 export interface Profile {
   id: string;
@@ -7,16 +22,47 @@ export interface Profile {
   role: UserRole;
   phone: string | null;
   company: string | null;
+  company_id: string | null;
   avatar_url: string | null;
   created_at: string;
 }
 
+export interface Client {
+  id: string;
+  company_id: string;
+  name: string;
+  contact_name: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  city: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface Invitation {
+  id: string;
+  company_id: string;
+  email: string;
+  role: Exclude<UserRole, "admin">;
+  invited_by: string;
+  token: string;
+  status: "pending" | "accepted" | "expired";
+  created_at: string;
+  expires_at: string;
+}
+
 export interface Chantier {
   id: string;
+  company_id: string;
+  reference: string | null;
+  client_id: string | null;
   name: string;
   description: string | null;
   address: string;
   city: string;
+  latitude: number | null;
+  longitude: number | null;
   status: "planifie" | "en_cours" | "suspendu" | "termine" | "annule";
   budget: number;
   start_date: string;
