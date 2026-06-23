@@ -1,6 +1,10 @@
 -- ChantierPro BTP — Migration Phase A
 -- Multi-tenancy + RBAC + champs chantier manquants
 -- À exécuter dans Supabase SQL Editor APRÈS supabase_schema.sql
+-- (Idempotent : peut être ré-exécuté sans danger)
+
+-- Évite la validation du corps des fonctions pendant la migration
+set check_function_bodies = off;
 
 -- =============================================
 -- 1. COMPANIES (entreprises = locataires SaaS)
@@ -21,16 +25,8 @@ create table if not exists public.companies (
 
 alter table public.companies enable row level security;
 
-drop policy if exists "Members can view their company" on public.companies;
-create policy "Members can view their company" on public.companies for select
-  using (id in (select company_id from public.profiles where id = auth.uid()));
-
-drop policy if exists "Directeur can update company" on public.companies;
-create policy "Directeur can update company" on public.companies for update
-  using (id in (select company_id from public.profiles where id = auth.uid() and role in ('admin', 'directeur')));
-
 -- =============================================
--- 2. PROFILES — ajout company_id
+-- 2. PROFILES — ajout company_id (AVANT les policies qui l'utilisent)
 -- =============================================
 alter table public.profiles add column if not exists company_id uuid references public.companies(id);
 
@@ -39,7 +35,19 @@ alter table public.profiles drop constraint if exists profiles_role_check;
 alter table public.profiles add constraint profiles_role_check
   check (role in ('admin', 'directeur', 'conducteur_travaux', 'chef_chantier', 'ouvrier', 'client'));
 
--- Permettre aux membres de voir les autres profils de leur entreprise
+-- =============================================
+-- 3. POLICIES companies (company_id existe désormais)
+-- =============================================
+drop policy if exists "Members can view their company" on public.companies;
+create policy "Members can view their company" on public.companies for select
+  using (id in (select company_id from public.profiles where id = auth.uid()));
+
+drop policy if exists "Directeur can update company" on public.companies;
+create policy "Directeur can update company" on public.companies for update
+  using (id in (select company_id from public.profiles where id = auth.uid() and role in ('admin', 'directeur')));
+
+-- Policies profiles
+drop policy if exists "Users can view own profile" on public.profiles;
 drop policy if exists "Members can view team profiles" on public.profiles;
 create policy "Members can view team profiles" on public.profiles for select
   using (
@@ -47,6 +55,7 @@ create policy "Members can view team profiles" on public.profiles for select
     or company_id in (select company_id from public.profiles where id = auth.uid())
   );
 
+drop policy if exists "Users can update own profile" on public.profiles;
 drop policy if exists "Directeur can update team profiles" on public.profiles;
 create policy "Directeur can update team profiles" on public.profiles for update
   using (
@@ -55,7 +64,7 @@ create policy "Directeur can update team profiles" on public.profiles for update
   );
 
 -- =============================================
--- 3. CLIENTS (maîtres d'ouvrage)
+-- 4. CLIENTS (maîtres d'ouvrage)
 -- =============================================
 create table if not exists public.clients (
   id uuid default gen_random_uuid() primary key,
@@ -85,7 +94,7 @@ create policy "Authorized can manage clients" on public.clients for all
   );
 
 -- =============================================
--- 4. CHANTIERS — nouveaux champs
+-- 5. CHANTIERS — nouveaux champs
 -- =============================================
 alter table public.chantiers add column if not exists company_id uuid references public.companies(id);
 alter table public.chantiers add column if not exists reference text;
@@ -95,10 +104,11 @@ alter table public.chantiers add column if not exists longitude numeric;
 
 -- Replace RLS by company-scoped + role-based
 drop policy if exists "Owner can CRUD own chantiers" on public.chantiers;
-
+drop policy if exists "Company members can view chantiers" on public.chantiers;
 create policy "Company members can view chantiers" on public.chantiers for select
   using (company_id in (select company_id from public.profiles where id = auth.uid()));
 
+drop policy if exists "Conducteur can create chantiers" on public.chantiers;
 create policy "Conducteur can create chantiers" on public.chantiers for insert
   with check (
     company_id in (
@@ -107,6 +117,7 @@ create policy "Conducteur can create chantiers" on public.chantiers for insert
     )
   );
 
+drop policy if exists "Conducteur can update chantiers" on public.chantiers;
 create policy "Conducteur can update chantiers" on public.chantiers for update
   using (
     company_id in (
@@ -115,6 +126,7 @@ create policy "Conducteur can update chantiers" on public.chantiers for update
     )
   );
 
+drop policy if exists "Directeur can delete chantiers" on public.chantiers;
 create policy "Directeur can delete chantiers" on public.chantiers for delete
   using (
     company_id in (
@@ -124,7 +136,7 @@ create policy "Directeur can delete chantiers" on public.chantiers for delete
   );
 
 -- =============================================
--- 5. INVITATIONS (inviter par email)
+-- 6. INVITATIONS (inviter par email)
 -- =============================================
 create table if not exists public.invitations (
   id uuid default gen_random_uuid() primary key,
@@ -149,17 +161,19 @@ create policy "Company managers can manage invitations" on public.invitations fo
   );
 
 -- =============================================
--- 6. RLS sur autres tables — scope par entreprise via chantier
+-- 7. RLS sur autres tables — scope par entreprise via chantier
 -- =============================================
 
 -- daily_reports
 drop policy if exists "Author can CRUD own reports" on public.daily_reports;
+drop policy if exists "Company members can view reports" on public.daily_reports;
 create policy "Company members can view reports" on public.daily_reports for select
   using (chantier_id in (
     select id from public.chantiers where company_id in (
       select company_id from public.profiles where id = auth.uid()
     )
   ));
+drop policy if exists "Authorized can create reports" on public.daily_reports;
 create policy "Authorized can create reports" on public.daily_reports for insert
   with check (
     auth.uid() = author_id
@@ -170,19 +184,23 @@ create policy "Authorized can create reports" on public.daily_reports for insert
       )
     )
   );
+drop policy if exists "Author can update own reports" on public.daily_reports;
 create policy "Author can update own reports" on public.daily_reports for update
   using (auth.uid() = author_id);
+drop policy if exists "Author can delete own reports" on public.daily_reports;
 create policy "Author can delete own reports" on public.daily_reports for delete
   using (auth.uid() = author_id);
 
 -- expenses
 drop policy if exists "Author can CRUD own expenses" on public.expenses;
+drop policy if exists "Company members can view expenses" on public.expenses;
 create policy "Company members can view expenses" on public.expenses for select
   using (chantier_id in (
     select id from public.chantiers where company_id in (
       select company_id from public.profiles where id = auth.uid()
     )
   ));
+drop policy if exists "Authorized can manage expenses" on public.expenses;
 create policy "Authorized can manage expenses" on public.expenses for all
   using (
     chantier_id in (
@@ -195,12 +213,14 @@ create policy "Authorized can manage expenses" on public.expenses for all
 
 -- teams
 drop policy if exists "Chantier owner can manage teams" on public.teams;
+drop policy if exists "Company members can view teams" on public.teams;
 create policy "Company members can view teams" on public.teams for select
   using (chantier_id in (
     select id from public.chantiers where company_id in (
       select company_id from public.profiles where id = auth.uid()
     )
   ));
+drop policy if exists "Authorized can manage teams" on public.teams;
 create policy "Authorized can manage teams" on public.teams for all
   using (
     chantier_id in (
@@ -213,11 +233,13 @@ create policy "Authorized can manage teams" on public.teams for all
 
 -- team_members
 drop policy if exists "Team owner can manage members" on public.team_members;
+drop policy if exists "Company can view team members" on public.team_members;
 create policy "Company can view team members" on public.team_members for select
   using (team_id in (
     select t.id from public.teams t join public.chantiers c on c.id = t.chantier_id
     where c.company_id in (select company_id from public.profiles where id = auth.uid())
   ));
+drop policy if exists "Authorized can manage team members" on public.team_members;
 create policy "Authorized can manage team members" on public.team_members for all
   using (
     team_id in (
@@ -231,12 +253,14 @@ create policy "Authorized can manage team members" on public.team_members for al
 
 -- tasks
 drop policy if exists "Chantier owner can manage tasks" on public.tasks;
+drop policy if exists "Company members can view tasks" on public.tasks;
 create policy "Company members can view tasks" on public.tasks for select
   using (chantier_id in (
     select id from public.chantiers where company_id in (
       select company_id from public.profiles where id = auth.uid()
     )
   ));
+drop policy if exists "Authorized can manage tasks" on public.tasks;
 create policy "Authorized can manage tasks" on public.tasks for all
   using (
     chantier_id in (
@@ -249,12 +273,14 @@ create policy "Authorized can manage tasks" on public.tasks for all
 
 -- documents
 drop policy if exists "Chantier owner can manage documents" on public.documents;
+drop policy if exists "Company members can view documents" on public.documents;
 create policy "Company members can view documents" on public.documents for select
   using (chantier_id in (
     select id from public.chantiers where company_id in (
       select company_id from public.profiles where id = auth.uid()
     )
   ));
+drop policy if exists "Authorized can manage documents" on public.documents;
 create policy "Authorized can manage documents" on public.documents for all
   using (
     chantier_id in (
@@ -264,29 +290,6 @@ create policy "Authorized can manage documents" on public.documents for all
       )
     )
   );
-
--- =============================================
--- 7. MIGRATION : utilisateurs existants → company
--- =============================================
-do $$
-declare
-  p record;
-  new_company_id uuid;
-begin
-  for p in select id, full_name, company from public.profiles where company_id is null loop
-    insert into public.companies (name, plan, max_chantiers, max_users)
-    values (coalesce(nullif(p.company, ''), nullif(p.full_name, '') || ' SARL', 'Mon entreprise'), 'starter', 1, 5)
-    returning id into new_company_id;
-
-    update public.profiles
-      set company_id = new_company_id,
-          role = case when role = 'chef_chantier' then 'directeur' else role end
-      where id = p.id;
-
-    update public.chantiers set company_id = new_company_id
-      where owner_id = p.id and company_id is null;
-  end loop;
-end $$;
 
 -- =============================================
 -- 8. Trigger handle_new_user mis à jour
@@ -338,3 +341,30 @@ begin
   return new;
 end;
 $$ language plpgsql security definer;
+
+-- =============================================
+-- 9. MIGRATION : utilisateurs existants → company
+--    (en dernier, après que tout existe)
+-- =============================================
+do $$
+declare
+  p record;
+  new_company_id uuid;
+begin
+  for p in select id, full_name, company from public.profiles where company_id is null loop
+    insert into public.companies (name, plan, max_chantiers, max_users)
+    values (coalesce(nullif(p.company, ''), nullif(p.full_name, '') || ' SARL', 'Mon entreprise'), 'starter', 1, 5)
+    returning id into new_company_id;
+
+    update public.profiles
+      set company_id = new_company_id,
+          role = case when role = 'chef_chantier' then 'directeur' else role end
+      where id = p.id;
+
+    update public.chantiers set company_id = new_company_id
+      where owner_id = p.id and company_id is null;
+  end loop;
+end $$;
+
+-- Rétablit le réglage par défaut
+set check_function_bodies = on;
