@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
 export type Role = "admin" | "directeur" | "conducteur_travaux" | "chef_chantier" | "ouvrier" | "client";
 
@@ -10,7 +10,7 @@ export interface SessionContext {
   role: Role;
   companyId: string;
   companyName: string;
-  plan: "starter" | "pro" | "business";
+  plan: string;
 }
 
 export async function getSession(): Promise<SessionContext | null> {
@@ -24,18 +24,18 @@ export async function getSession(): Promise<SessionContext | null> {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.company_id) return null;
+  if (!profile) return null;
 
   const company = profile.companies && typeof profile.companies === "object" && !Array.isArray(profile.companies)
-    ? profile.companies as unknown as { name: string; plan: "starter" | "pro" | "business" }
-    : { name: "—", plan: "starter" as const };
+    ? (profile.companies as { name: string; plan: string })
+    : { name: "", plan: "starter" };
 
   return {
     userId: user.id,
     email: user.email ?? "",
     fullName: profile.full_name ?? "",
-    role: profile.role as Role,
-    companyId: profile.company_id,
+    role: (profile.role ?? "ouvrier") as Role,
+    companyId: profile.company_id ?? "",
     companyName: company.name,
     plan: company.plan,
   };
@@ -54,15 +54,15 @@ export async function requireRole(allowed: Role[]): Promise<SessionContext> {
 }
 
 export function canManageChantiers(role: Role) {
-  return role === "admin" || role === "directeur" || role === "conducteur_travaux";
+  return ["admin", "directeur", "conducteur_travaux"].includes(role);
 }
 
 export function canCreateReports(role: Role) {
-  return role === "admin" || role === "directeur" || role === "conducteur_travaux" || role === "chef_chantier";
+  return ["admin", "directeur", "conducteur_travaux", "chef_chantier"].includes(role);
 }
 
 export function canManageTeam(role: Role) {
-  return role === "admin" || role === "directeur";
+  return ["admin", "directeur"].includes(role);
 }
 
 export function isClient(role: Role) {
@@ -79,5 +79,5 @@ export const roleLabels: Record<Role, string> = {
   conducteur_travaux: "Conducteur de travaux",
   chef_chantier: "Chef de chantier",
   ouvrier: "Ouvrier",
-  client: "Client / Maître d'ouvrage",
+  client: "Client",
 };

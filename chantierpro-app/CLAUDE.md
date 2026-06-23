@@ -60,6 +60,16 @@ profiles, chantiers, daily_reports, expenses, teams, team_members, tasks, notifi
 - `chantier-photos` (public) — report photos
 - `chantier-documents` (private) — contracts, plans, permits, invoices
 
+## SaaS Phases (A–E)
+- **A** Multi-tenant + RBAC: `companies`, `company_id` scoping, 6 roles, RLS. Helper `src/lib/auth.ts` (`requireSession`, `requireRole`, `Role`).
+- **B** Detailed reports (trade details + signature canvas), attendance (`/presences`), receipt upload on expenses, role-based dashboard.
+- **C** Subscriptions: `src/lib/plans.ts` (starter/pro/entreprise), `src/lib/billing.ts` (limits), `/tarifs` (public), `/abonnement` (in-app, mobile money). `payments` table.
+- **D** AI via Claude API: `src/lib/anthropic.ts` (model claude-haiku-4-5), `/assistant` (chat + report gen), `/api/ai/chat`, `/api/ai/report`. Deterministic alerts in `src/lib/alerts.ts`. Gated to `entreprise` plan.
+- **E** Notifications: `src/lib/notifications/` (channels: email=Resend, whatsapp=Meta Cloud, sms=generic HTTP; dispatch + templates). Settings in `/parametres`. Cron digest `/api/notifications/digest` (daily 07:00 via vercel.json crons).
+
+## SQL Migrations (run in order in Supabase SQL Editor)
+`supabase_schema.sql` → `supabase_migration_phase_a.sql` → `_phase_b.sql` → `_phase_c.sql`
+
 ## Deployment
-- Vercel: `vercel.json` configured for CDG1 region (Paris)
-- Set env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+- Vercel: `vercel.json` configured for CDG1 region (Paris), daily cron for alert digest
+- Env vars: see `.env.example` (Supabase required; ANTHROPIC_API_KEY for AI; RESEND/WHATSAPP/SMS optional per channel)

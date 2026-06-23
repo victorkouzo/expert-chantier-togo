@@ -17,6 +17,7 @@ export default function HomePage() {
           Chantier<span className="text-green-400">Pro</span>
         </h1>
         <div className="flex gap-3">
+          <Link href="/tarifs"><Button variant="ghost">Tarifs</Button></Link>
           <Link href="/login"><Button variant="ghost">Connexion</Button></Link>
           <Link href="/register"><Button>Commencer</Button></Link>
         </div>

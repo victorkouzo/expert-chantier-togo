@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, HardHat, FileText, Wallet, Users, CalendarDays,
-  Bell, FolderOpen, UserCircle, Building2, Settings, LogOut
+  Bell, FolderOpen, UserCircle, Building2, Settings, LogOut, ClipboardCheck, CreditCard, Sparkles
 } from "lucide-react";
 import type { Role } from "@/lib/auth";
 
@@ -29,12 +29,15 @@ const allLinks: LinkItem[] = [
   { href: "/rapports", label: "Rapports", icon: FileText, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "client"] },
   { href: "/depenses", label: "Dépenses", icon: Wallet, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier"] },
   { href: "/equipes", label: "Équipes", icon: Users, roles: ["admin", "directeur", "conducteur_travaux"] },
+  { href: "/presences", label: "Présences", icon: ClipboardCheck, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier"] },
   { href: "/planning", label: "Planning", icon: CalendarDays, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier"] },
   { href: "/documents", label: "Documents", icon: FolderOpen, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "client"] },
+  { href: "/assistant", label: "Assistant IA", icon: Sparkles, roles: ["admin", "directeur", "conducteur_travaux"] },
   { href: "/notifications", label: "Notifications", icon: Bell, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
 ];
 
 const bottomLinks: LinkItem[] = [
+  { href: "/abonnement", label: "Abonnement", icon: CreditCard, roles: ["admin", "directeur"] },
   { href: "/parametres", label: "Paramètres", icon: Settings, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
   { href: "/profil", label: "Mon profil", icon: UserCircle, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
 ];
