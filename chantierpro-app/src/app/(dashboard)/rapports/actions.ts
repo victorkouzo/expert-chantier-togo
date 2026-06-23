@@ -26,7 +26,7 @@ export async function createDailyReport(_prevState: unknown, formData: FormData)
   const { error } = await supabase.from("daily_reports").insert({
     ...parsed.data,
     author_id: user.id,
-    photos: [],
+    photos: (() => { try { return JSON.parse(formData.get("photos") as string ?? "[]"); } catch { return []; } })(),
   });
 
   if (error) return { error: error.message };
