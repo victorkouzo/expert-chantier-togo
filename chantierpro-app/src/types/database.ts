@@ -52,3 +52,56 @@ export interface Expense {
   expense_date: string;
   created_at: string;
 }
+
+export type Specialty = "general" | "maconnerie" | "electricite" | "plomberie" | "peinture" | "charpente" | "ferraillage" | "coffrage" | "finition" | "autre";
+
+export interface Team {
+  id: string;
+  chantier_id: string;
+  name: string;
+  specialty: Specialty;
+  created_at: string;
+}
+
+export type MemberRole = "chef_equipe" | "ouvrier" | "apprenti" | "manoeuvre";
+
+export interface TeamMember {
+  id: string;
+  team_id: string;
+  full_name: string;
+  role: MemberRole;
+  phone: string | null;
+  daily_rate: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export type TaskStatus = "a_faire" | "en_cours" | "termine" | "bloque";
+export type TaskPriority = "basse" | "normale" | "haute" | "urgente";
+
+export interface Task {
+  id: string;
+  chantier_id: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  assigned_team_id: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  progress: number;
+  created_at: string;
+}
+
+export type NotificationType = "info" | "warning" | "success" | "error";
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  is_read: boolean;
+  link: string | null;
+  created_at: string;
+}
