@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, HardHat, FileText, Wallet, Users, CalendarDays,
-  Bell, FolderOpen, UserCircle, Building2, Settings, LogOut, ClipboardCheck
+  Bell, FolderOpen, UserCircle, Building2, Settings, LogOut, ClipboardCheck, CreditCard
 } from "lucide-react";
 import type { Role } from "@/lib/auth";
 
@@ -36,6 +36,7 @@ const allLinks: LinkItem[] = [
 ];
 
 const bottomLinks: LinkItem[] = [
+  { href: "/abonnement", label: "Abonnement", icon: CreditCard, roles: ["admin", "directeur"] },
   { href: "/parametres", label: "Paramètres", icon: Settings, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
   { href: "/profil", label: "Mon profil", icon: UserCircle, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
 ];
