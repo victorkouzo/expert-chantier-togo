@@ -158,3 +158,25 @@ create table if not exists public.notifications (
 alter table public.notifications enable row level security;
 create policy "User can read own notifications" on public.notifications for select using (auth.uid() = user_id);
 create policy "User can update own notifications" on public.notifications for update using (auth.uid() = user_id);
+
+-- Documents
+create table if not exists public.documents (
+  id uuid default gen_random_uuid() primary key,
+  chantier_id uuid references public.chantiers(id) on delete cascade not null,
+  uploaded_by uuid references public.profiles(id) not null,
+  name text not null,
+  description text,
+  category text not null default 'autre' check (category in ('contrat','plan','permis','facture','pv_reception','rapport_inspection','photo','autre')),
+  file_url text not null,
+  file_size integer default 0,
+  file_type text,
+  created_at timestamptz default now()
+);
+
+alter table public.documents enable row level security;
+create policy "Chantier owner can manage documents" on public.documents for all
+  using (exists (select 1 from public.chantiers where id = chantier_id and owner_id = auth.uid()));
+
+-- Supabase Storage buckets (create manually in dashboard)
+-- 1. chantier-photos (public)
+-- 2. chantier-documents (private)

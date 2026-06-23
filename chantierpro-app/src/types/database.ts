@@ -105,3 +105,18 @@ export interface Notification {
   link: string | null;
   created_at: string;
 }
+
+export type DocumentCategory = "contrat" | "plan" | "permis" | "facture" | "pv_reception" | "rapport_inspection" | "photo" | "autre";
+
+export interface Document {
+  id: string;
+  chantier_id: string;
+  uploaded_by: string;
+  name: string;
+  description: string | null;
+  category: DocumentCategory;
+  file_url: string;
+  file_size: number;
+  file_type: string | null;
+  created_at: string;
+}
