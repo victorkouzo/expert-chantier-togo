@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ExportExcelButton } from "@/components/export-excel-button";
@@ -57,7 +57,14 @@ export default async function DepensesPage() {
                   · {format(new Date(d.expense_date), "d MMM yyyy", { locale: fr })}
                 </p>
               </div>
-              <p className="text-lg font-bold text-white">{Number(d.amount).toLocaleString("fr-FR")} FCFA</p>
+              <div className="flex items-center gap-3">
+                {d.receipt_url && (
+                  <a href={d.receipt_url} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300" title="Voir le reçu">
+                    <Paperclip size={16} />
+                  </a>
+                )}
+                <p className="text-lg font-bold text-white">{Number(d.amount).toLocaleString("fr-FR")} FCFA</p>
+              </div>
             </Card>
           ))}
         </div>

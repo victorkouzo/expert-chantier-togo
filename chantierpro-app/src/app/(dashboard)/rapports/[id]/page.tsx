@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Sun, Cloud, CloudRain, CloudLightning, Users, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Sun, Cloud, CloudRain, CloudLightning, Users, Image as ImageIcon, Wrench } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ExportPdfButton } from "./export-pdf-button";
@@ -14,6 +14,20 @@ const weatherConfig: Record<string, { icon: typeof Sun; label: string; color: st
   pluie: { icon: CloudRain, label: "Pluie", color: "text-blue-400" },
   orage: { icon: CloudLightning, label: "Orage", color: "text-purple-400" },
 };
+
+const tradeLabels: Record<string, string> = {
+  maconnerie: "Maçonnerie", electricite: "Électricité", plomberie: "Plomberie",
+  peinture: "Peinture", charpente: "Charpente", ferraillage: "Ferraillage",
+  coffrage: "Coffrage", finition: "Finition", terrassement: "Terrassement",
+  etancheite: "Étanchéité", carrelage: "Carrelage", menuiserie: "Menuiserie", autre: "Autre",
+};
+
+interface TradeDetail {
+  trade: string;
+  workers: number;
+  description: string;
+  progress: number;
+}
 
 export default async function RapportDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,6 +49,7 @@ export default async function RapportDetailPage({ params }: { params: Promise<{ 
     ? (rapport.chantiers as { city: string }).city : "";
   const authorName = rapport.profiles && typeof rapport.profiles === "object"
     ? (rapport.profiles as { full_name: string }).full_name : "—";
+  const trades: TradeDetail[] = Array.isArray(rapport.trade_details) ? rapport.trade_details : [];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -106,6 +121,33 @@ export default async function RapportDetailPage({ params }: { params: Promise<{ 
         </Card>
       )}
 
+      {trades.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-300">
+            <Wrench size={16} /> Détails par corps de métier ({trades.length})
+          </h3>
+          {trades.map((t, i) => (
+            <Card key={i}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-green-500/10 px-2 py-0.5 text-xs text-green-400">
+                    {tradeLabels[t.trade] ?? t.trade}
+                  </span>
+                  <span className="text-xs text-zinc-500">{t.workers} ouvrier{t.workers > 1 ? "s" : ""}</span>
+                </div>
+                <span className="text-xs font-medium text-zinc-300">{t.progress}%</span>
+              </div>
+              {t.description && (
+                <p className="text-sm text-zinc-400">{t.description}</p>
+              )}
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+                <div className="h-full rounded-full bg-green-500" style={{ width: `${t.progress}%` }} />
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {rapport.photos && rapport.photos.length > 0 && (
         <div className="space-y-3">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-300">
@@ -121,10 +163,10 @@ export default async function RapportDetailPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      {rapport.signature_url && (
+      {rapport.signature_data && (
         <Card>
           <h3 className="mb-2 text-sm font-semibold text-zinc-300">Signature</h3>
-          <img src={rapport.signature_url} alt="Signature" className="h-20" />
+          <img src={rapport.signature_data} alt="Signature" className="h-20 rounded bg-zinc-900 p-2" />
         </Card>
       )}
     </div>

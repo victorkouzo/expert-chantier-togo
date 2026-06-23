@@ -36,7 +36,8 @@ export default async function RapportsPage() {
       ) : (
         <div className="space-y-3">
           {rapports.map((r) => (
-            <Card key={r.id} className="flex items-center justify-between">
+            <Link key={r.id} href={`/rapports/${r.id}`}>
+            <Card className="flex items-center justify-between hover:border-zinc-600 transition-colors cursor-pointer">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   {weatherIcon[r.weather]}
@@ -53,6 +54,7 @@ export default async function RapportsPage() {
               </div>
               <p className="max-w-md truncate text-sm text-zinc-400">{r.summary}</p>
             </Card>
+            </Link>
           ))}
         </div>
       )}

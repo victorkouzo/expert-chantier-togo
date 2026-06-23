@@ -10,6 +10,8 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { PhotoUpload } from "@/components/photo-upload";
+import { SignatureCanvas } from "@/components/signature-canvas";
+import { TradeDetailsForm, type TradeDetail } from "@/components/trade-details-form";
 
 const weatherOptions = [
   { value: "soleil", label: "Soleil" },
@@ -22,7 +24,11 @@ function NewRapportForm() {
   const [state, formAction, pending] = useActionState(createDailyReport, null);
   const [chantiers, setChantiers] = useState<{ value: string; label: string }[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [signature, setSignature] = useState("");
+  const [tradeDetails, setTradeDetails] = useState<TradeDetail[]>([]);
   const photosRef = useRef<HTMLInputElement>(null);
+  const signatureRef = useRef<HTMLInputElement>(null);
+  const tradeRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedChantier = searchParams.get("chantier") ?? "";
@@ -45,10 +51,16 @@ function NewRapportForm() {
   }, [state, router]);
 
   useEffect(() => {
-    if (photosRef.current) {
-      photosRef.current.value = JSON.stringify(photos);
-    }
+    if (photosRef.current) photosRef.current.value = JSON.stringify(photos);
   }, [photos]);
+
+  useEffect(() => {
+    if (signatureRef.current) signatureRef.current.value = signature;
+  }, [signature]);
+
+  useEffect(() => {
+    if (tradeRef.current) tradeRef.current.value = JSON.stringify(tradeDetails);
+  }, [tradeDetails]);
 
   return (
     <Card>
@@ -61,10 +73,13 @@ function NewRapportForm() {
           <Input label="Température (°C)" name="temperature" type="number" />
         </div>
 
-        <Input label="Ouvriers présents" name="workers_present" type="number" required min={0} />
+        <Input label="Ouvriers présents (total)" name="workers_present" type="number" required min={0} />
         <Textarea label="Résumé des travaux" name="summary" rows={3} required />
         <Textarea label="Tâches accomplies" name="tasks_completed" rows={3} required />
         <Textarea label="Problèmes rencontrés (optionnel)" name="issues" rows={2} />
+
+        <TradeDetailsForm onChange={setTradeDetails} />
+        <input ref={tradeRef} type="hidden" name="trade_details" value="[]" />
 
         <PhotoUpload
           bucket="chantier-photos"
@@ -72,6 +87,9 @@ function NewRapportForm() {
           onUpload={setPhotos}
         />
         <input ref={photosRef} type="hidden" name="photos" value="[]" />
+
+        <SignatureCanvas onSave={setSignature} />
+        <input ref={signatureRef} type="hidden" name="signature_data" value="" />
 
         {state && "error" in state && typeof state.error === "string" && (
           <p className="text-sm text-red-400">{state.error}</p>
