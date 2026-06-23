@@ -21,7 +21,7 @@ export default async function ChantierDetailPage({ params }: { params: Promise<{
   const supabase = await createClient();
 
   const [{ data: chantier }, { data: rapports }, { data: depenses }] = await Promise.all([
-    supabase.from("chantiers").select("*").eq("id", id).single(),
+    supabase.from("chantiers").select("*, clients(id, name, phone, email)").eq("id", id).single(),
     supabase.from("daily_reports").select("*").eq("chantier_id", id).order("report_date", { ascending: false }).limit(5),
     supabase.from("expenses").select("*").eq("chantier_id", id).order("expense_date", { ascending: false }).limit(10),
   ]);
@@ -51,6 +51,30 @@ export default async function ChantierDetailPage({ params }: { params: Promise<{
       {chantier.description && (
         <p className="text-sm text-zinc-400">{chantier.description}</p>
       )}
+
+      <div className="flex flex-wrap gap-3 text-xs">
+        {chantier.reference && (
+          <span className="rounded bg-zinc-800 px-2 py-1 text-zinc-300">Réf : {chantier.reference}</span>
+        )}
+        {chantier.clients && typeof chantier.clients === "object" && !Array.isArray(chantier.clients) && (
+          <Link
+            href={`/clients/${(chantier.clients as { id: string }).id}`}
+            className="rounded bg-blue-500/10 px-2 py-1 text-blue-400 hover:bg-blue-500/20"
+          >
+            Client : {(chantier.clients as { name: string }).name}
+          </Link>
+        )}
+        {chantier.latitude && chantier.longitude && (
+          <a
+            href={`https://www.google.com/maps?q=${chantier.latitude},${chantier.longitude}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 rounded bg-zinc-800 px-2 py-1 text-zinc-300 hover:text-green-400"
+          >
+            <MapPin size={11} /> Voir sur la carte
+          </a>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
