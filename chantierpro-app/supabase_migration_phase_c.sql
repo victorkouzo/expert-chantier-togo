@@ -4,7 +4,11 @@
 set check_function_bodies = off;
 
 -- 1. Colonnes d'abonnement sur companies
-alter table companies add column if not exists plan text not null default 'starter'
+-- La colonne plan peut déjà exister (Phase A) avec une ancienne contrainte :
+-- on remplace explicitement la contrainte pour autoriser les 3 plans.
+alter table companies add column if not exists plan text not null default 'starter';
+alter table companies drop constraint if exists companies_plan_check;
+alter table companies add constraint companies_plan_check
   check (plan in ('starter', 'pro', 'entreprise'));
 alter table companies add column if not exists subscription_status text not null default 'active'
   check (subscription_status in ('active', 'past_due', 'canceled', 'trialing'));
