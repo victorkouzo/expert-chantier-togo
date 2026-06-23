@@ -1,6 +1,8 @@
 import { requireSession } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
+import { channelStatus } from "@/lib/notifications/channels";
+import { NotificationSettings } from "./notification-settings";
 
 export default async function ParametresPage() {
   const session = await requireSession();
@@ -18,9 +20,13 @@ export default async function ParametresPage() {
     .eq("company_id", session.companyId)
     .order("created_at", { ascending: false });
 
+  const notifStatus = channelStatus();
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-white">Paramètres</h1>
+
+      <NotificationSettings status={notifStatus} defaultEmail={session.email} />
 
       <Card>
         <h2 className="text-lg font-semibold text-white mb-3">Entreprise</h2>

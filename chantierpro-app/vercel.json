@@ -5,5 +5,11 @@
   "env": {
     "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/notifications/digest",
+      "schedule": "0 7 * * *"
+    }
+  ]
 }
