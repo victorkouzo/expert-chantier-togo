@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard, HardHat, FileText, Wallet, Users, CalendarDays,
-  Bell, FolderOpen, UserCircle, Building2, Settings, LogOut, ClipboardCheck, CreditCard, Sparkles, ShieldCheck
+  Bell, FolderOpen, UserCircle, Building2, Settings, LogOut, ClipboardCheck, CreditCard, Sparkles, ShieldCheck,
+  Menu, X
 } from "lucide-react";
 import type { Role } from "@/lib/auth";
 
@@ -46,6 +48,7 @@ const bottomLinks: LinkItem[] = [
 export function Sidebar({ role, fullName, companyName }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -57,11 +60,20 @@ export function Sidebar({ role, fullName, companyName }: Props) {
   const links = allLinks.filter((l) => l.roles.includes(role));
   const bottom = bottomLinks.filter((l) => l.roles.includes(role));
 
-  return (
-    <aside className="flex h-screen w-60 flex-col border-r border-zinc-800 bg-zinc-950 px-3 py-6">
-      <Link href="/dashboard" className="mb-2 px-3 text-xl font-bold text-white">
-        Chantier<span className="text-green-400">Pro</span>
-      </Link>
+  function handleNavClick() {
+    setOpen(false);
+  }
+
+  const sidebarContent = (
+    <>
+      <div className="flex items-center justify-between">
+        <Link href="/dashboard" className="px-3 text-xl font-bold text-white" onClick={handleNavClick}>
+          Chantier<span className="text-green-400">Pro</span>
+        </Link>
+        <button onClick={() => setOpen(false)} className="p-2 text-zinc-400 lg:hidden">
+          <X size={20} />
+        </button>
+      </div>
       <div className="mb-6 px-3 text-xs text-zinc-500 truncate" title={companyName}>{companyName}</div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto">
@@ -71,6 +83,7 @@ export function Sidebar({ role, fullName, companyName }: Props) {
             <Link
               key={href}
               href={href}
+              onClick={handleNavClick}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                 active ? "bg-green-500/10 text-green-400" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
               }`}
@@ -89,6 +102,7 @@ export function Sidebar({ role, fullName, companyName }: Props) {
             <Link
               key={href}
               href={href}
+              onClick={handleNavClick}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                 active ? "bg-green-500/10 text-green-400" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
               }`}
@@ -107,6 +121,36 @@ export function Sidebar({ role, fullName, companyName }: Props) {
         </button>
         <div className="mt-2 px-3 text-xs text-zinc-600 truncate" title={fullName}>{fullName}</div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile header bar */}
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-zinc-800 bg-zinc-950 px-4 py-3 lg:hidden">
+        <button onClick={() => setOpen(true)} className="p-1 text-zinc-400">
+          <Menu size={24} />
+        </button>
+        <span className="text-lg font-bold text-white">
+          Chantier<span className="text-green-400">Pro</span>
+        </span>
+        <div className="w-8" />
+      </div>
+
+      {/* Mobile overlay */}
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+          <aside className="relative flex h-full w-64 flex-col bg-zinc-950 px-3 py-6">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex h-screen w-60 flex-col border-r border-zinc-800 bg-zinc-950 px-3 py-6">
+        {sidebarContent}
+      </aside>
+    </>
   );
 }
