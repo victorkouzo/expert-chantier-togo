@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 
 const UpdatePaymentSchema = z.object({
   payment_id: z.string().uuid(),
@@ -11,7 +11,7 @@ const UpdatePaymentSchema = z.object({
 });
 
 export async function updatePaymentStatus(_prevState: unknown, formData: FormData) {
-  await requireRole(["admin", "directeur"]);
+  await requireSuperAdmin();
 
   const parsed = UpdatePaymentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Données invalides" };
@@ -19,16 +19,22 @@ export async function updatePaymentStatus(_prevState: unknown, formData: FormDat
   const supabase = await createClient();
   const newStatus = parsed.data.action === "confirm" ? "confirmed" : "rejected";
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("payments")
     .update({
       status: newStatus,
       confirmed_at: parsed.data.action === "confirm" ? new Date().toISOString() : null,
     })
     .eq("id", parsed.data.payment_id)
-    .eq("status", "pending");
+    .eq("status", "pending")
+    .select("id");
 
   if (error) return { error: error.message };
+  // RLS ou statut déjà traité : aucune ligne modifiée → on remonte une vraie erreur
+  // au lieu d'un faux succès silencieux.
+  if (!updated || updated.length === 0) {
+    return { error: "Paiement introuvable ou déjà traité (action non autorisée)." };
+  }
 
   if (parsed.data.action === "confirm") {
     const { data: payment } = await supabase

@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { requireRole } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { PaymentRow } from "./payment-row";
 import { CreditCard, Clock, CheckCircle, XCircle } from "lucide-react";
 
 export default async function AdminPaymentsPage() {
-  await requireRole(["admin", "directeur"]);
+  await requireSuperAdmin();
   const supabase = await createClient();
 
   const { data: payments } = await supabase

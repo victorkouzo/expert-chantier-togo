@@ -10,11 +10,13 @@ import {
   Menu, X
 } from "lucide-react";
 import type { Role } from "@/lib/auth";
+import { isSuperAdmin } from "@/lib/super-admin";
 
 interface Props {
   role: Role;
   fullName: string;
   companyName: string;
+  email: string;
 }
 
 interface LinkItem {
@@ -22,6 +24,7 @@ interface LinkItem {
   label: string;
   icon: typeof LayoutDashboard;
   roles: Role[];
+  superAdminOnly?: boolean;
 }
 
 const allLinks: LinkItem[] = [
@@ -39,13 +42,13 @@ const allLinks: LinkItem[] = [
 ];
 
 const bottomLinks: LinkItem[] = [
-  { href: "/admin/paiements", label: "Paiements", icon: ShieldCheck, roles: ["admin", "directeur"] },
+  { href: "/admin/paiements", label: "Paiements", icon: ShieldCheck, roles: ["admin", "directeur"], superAdminOnly: true },
   { href: "/abonnement", label: "Abonnement", icon: CreditCard, roles: ["admin", "directeur"] },
   { href: "/parametres", label: "Paramètres", icon: Settings, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
   { href: "/profil", label: "Mon profil", icon: UserCircle, roles: ["admin", "directeur", "conducteur_travaux", "chef_chantier", "ouvrier", "client"] },
 ];
 
-export function Sidebar({ role, fullName, companyName }: Props) {
+export function Sidebar({ role, fullName, companyName, email }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -57,8 +60,10 @@ export function Sidebar({ role, fullName, companyName }: Props) {
     router.refresh();
   }
 
-  const links = allLinks.filter((l) => l.roles.includes(role));
-  const bottom = bottomLinks.filter((l) => l.roles.includes(role));
+  const superAdmin = isSuperAdmin(email);
+  const visible = (l: LinkItem) => l.roles.includes(role) && (!l.superAdminOnly || superAdmin);
+  const links = allLinks.filter(visible);
+  const bottom = bottomLinks.filter(visible);
 
   function handleNavClick() {
     setOpen(false);

@@ -5,7 +5,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await requireSession();
   return (
     <div className="flex h-screen bg-black">
-      <Sidebar role={session.role} fullName={session.fullName} companyName={session.companyName} />
+      <Sidebar role={session.role} fullName={session.fullName} companyName={session.companyName} email={session.email} />
       <main className="flex-1 overflow-y-auto p-4 pt-16 lg:p-8">{children}</main>
     </div>
   );
