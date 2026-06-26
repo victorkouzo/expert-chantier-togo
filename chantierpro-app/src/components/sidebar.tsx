@@ -61,7 +61,7 @@ export function Sidebar({ role, fullName, companyName, email }: Props) {
   }
 
   const superAdmin = isSuperAdmin(email);
-  const visible = (l: LinkItem) => l.roles.includes(role) && (!l.superAdminOnly || superAdmin);
+  const visible = (l: LinkItem) => l.superAdminOnly ? superAdmin : l.roles.includes(role);
   const links = allLinks.filter(visible);
   const bottom = bottomLinks.filter(visible);
 
