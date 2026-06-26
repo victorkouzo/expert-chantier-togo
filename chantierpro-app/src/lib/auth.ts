@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSuperAdmin } from "@/lib/super-admin";
+
+export { isSuperAdmin, SUPER_ADMIN_EMAIL } from "@/lib/super-admin";
 
 export type Role = "admin" | "directeur" | "conducteur_travaux" | "chef_chantier" | "ouvrier" | "client";
 
@@ -60,6 +63,12 @@ export async function requireSession(): Promise<SessionContext> {
 export async function requireRole(allowed: Role[]): Promise<SessionContext> {
   const session = await requireSession();
   if (!allowed.includes(session.role)) redirect("/dashboard");
+  return session;
+}
+
+export async function requireSuperAdmin(): Promise<SessionContext> {
+  const session = await requireSession();
+  if (!isSuperAdmin(session.email)) redirect("/dashboard");
   return session;
 }
 

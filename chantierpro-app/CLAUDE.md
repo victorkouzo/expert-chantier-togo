@@ -68,7 +68,9 @@ profiles, chantiers, daily_reports, expenses, teams, team_members, tasks, notifi
 - **E** Notifications: `src/lib/notifications/` (channels: email=Resend, whatsapp=Meta Cloud, sms=generic HTTP; dispatch + templates). Settings in `/parametres`. Cron digest `/api/notifications/digest` (daily 07:00 via vercel.json crons).
 
 ## SQL Migrations (run in order in Supabase SQL Editor)
-`supabase_schema.sql` → `supabase_migration_phase_a.sql` → `_phase_b.sql` → `_phase_c.sql`
+`supabase_schema.sql` → `supabase_migration_phase_a.sql` → `_phase_b.sql` → `_phase_c.sql` → `supabase_migration_super_admin_payments.sql`
+
+> `supabase_migration_admin_payments.sql` est OBSOLÈTE (faille auto-confirmation), remplacé par `_super_admin_payments.sql` : seul le super-admin (`NEXT_PUBLIC_SUPER_ADMIN_EMAIL`) confirme/voit tous les paiements.
 
 ## Deployment
 - Vercel: `vercel.json` configured for CDG1 region (Paris), daily cron for alert digest
