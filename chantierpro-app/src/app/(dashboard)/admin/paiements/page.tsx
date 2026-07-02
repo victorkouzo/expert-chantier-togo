@@ -8,7 +8,7 @@ export default async function AdminPaymentsPage() {
   await requireSuperAdmin();
   const supabase = await createClient();
 
-  const { data: payments } = await supabase
+  const { data: payments, error } = await supabase
     .from("payments")
     .select(`
       id, plan, billing_cycle, amount, method, provider, phone, reference,
@@ -17,6 +17,19 @@ export default async function AdminPaymentsPage() {
       profiles:requested_by(full_name, email)
     `)
     .order("created_at", { ascending: false });
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold text-white">Gestion des paiements</h1>
+        <Card className="border-red-500/30 text-center py-8">
+          <XCircle className="mx-auto text-red-400 mb-2" size={32} />
+          <p className="text-red-400">Erreur de chargement des paiements</p>
+          <p className="mt-1 text-xs text-zinc-500">{error.message}</p>
+        </Card>
+      </div>
+    );
+  }
 
   const formatted = (payments ?? []).map((p) => {
     const company = p.companies && typeof p.companies === "object" && !Array.isArray(p.companies)
