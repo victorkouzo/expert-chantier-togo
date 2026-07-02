@@ -35,7 +35,7 @@ export default async function RapportDetailPage({ params }: { params: Promise<{ 
 
   const { data: rapport } = await supabase
     .from("daily_reports")
-    .select("*, chantiers(name, city), profiles(full_name)")
+    .select("*, chantiers(name, city, companies(name)), profiles(full_name)")
     .eq("id", id)
     .single();
 
@@ -47,6 +47,10 @@ export default async function RapportDetailPage({ params }: { params: Promise<{ 
     ? (rapport.chantiers as { name: string }).name : "—";
   const chantierCity = rapport.chantiers && typeof rapport.chantiers === "object"
     ? (rapport.chantiers as { city: string }).city : "";
+  const companyName = rapport.chantiers && typeof rapport.chantiers === "object"
+    && (rapport.chantiers as { companies?: { name: string } | null }).companies
+    ? ((rapport.chantiers as { companies: { name: string } }).companies).name
+    : "ChantierPro";
   const authorName = rapport.profiles && typeof rapport.profiles === "object"
     ? (rapport.profiles as { full_name: string }).full_name : "—";
   const trades: TradeDetail[] = Array.isArray(rapport.trade_details) ? rapport.trade_details : [];
@@ -73,7 +77,17 @@ export default async function RapportDetailPage({ params }: { params: Promise<{ 
           tasks_completed: rapport.tasks_completed,
           issues: rapport.issues,
           chantier_name: chantierName,
+          chantier_city: chantierCity,
+          company_name: companyName,
           author_name: authorName,
+          photos: Array.isArray(rapport.photos) ? rapport.photos : [],
+          trades: trades.map((t) => ({
+            label: tradeLabels[t.trade] ?? t.trade,
+            workers: t.workers,
+            description: t.description,
+            progress: t.progress,
+          })),
+          signature: rapport.signature_data ?? null,
         }} />
       </div>
 
